@@ -1,13 +1,48 @@
 <link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/express-web-components/express-middleware.html">
 
 <dom-module id="server-users">
     <template>
+        <express-middleware method="post" path="/adduser" callback="[[addUser]]"></express-middleware>
     </template>
 
     <script>
         class UsersComponent {
-            beforeRegister {
+            beforeRegister() {
                 this.is = 'server-users';
+            }
+
+            ready() {
+                /* POST to Add User Service */
+                this.addUser = (req, res) => {
+
+                    // Set our internal DB variable
+                    const db = req.db;
+
+                    // Get our form values. These rely on the "name" attributes
+                    const userName = req.body.username;
+                    const userEmail = req.body.useremail;
+
+                    // Set our collection
+                    const collection = db.get('usercollection');
+
+                    // Submit to the DB
+                    collection.insert({
+                        "username" : userName,
+                        "email" : userEmail
+                    }, (err, doc) => {
+                        if (err) {
+                            // If it failed, return error
+                            res.send("There was a problem adding the information to the database.");
+                        }
+                        else {
+                            // If it worked, set the header so the address bar doesn't still say /adduser
+                            //res.location("userlist");
+                            // And forward to success page
+                            res.redirect("userlist");
+                        }
+                    });
+                };
             }
         }
 

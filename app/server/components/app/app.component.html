@@ -2,8 +2,9 @@
 <link rel="import" href="../../../../bower_components/express-web-components/express-app.html">
 <link rel="import" href="../../../../bower_components/express-web-components/express-config.html">
 <link rel="import" href="../../../../bower_components/express-web-components/express-middleware.html">
+<link rel="import" href="../../../../bower_components/express-web-components/express-router.html">
 <link rel="import" href="../pages/pages.component.html">
-<link rel="import" href="../api/api.component.html">
+<link rel="import" href="../users/users.component.html">
 <link rel="import" href="../error/error.component.html">
 
 <dom-module id="server-app">
@@ -21,14 +22,17 @@
             <express-middleware callback="[[dbMW]]"></express-middleware>
             <express-middleware callback="[[notFound]]"></express-middleware>
 
-            <server-pages></server-pages>
-            <server-api></server-api>
+            <express-router path="/">
+                <server-pages></server-pages>
+                <server-users></server-users>
+            </express-router>
 
             <server-error></server-error>
         </express-app>
     </template>
 
     <script>
+        const debug = require('debug')('my-application');
         const pathModule = require('path');
         const logger = require('morgan');
         const cookieParser = require('cookie-parser');
