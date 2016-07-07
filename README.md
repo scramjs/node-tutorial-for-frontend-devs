@@ -1,3 +1,15 @@
+# This is a fork of the original project, rewritten with [Express Web Components](https://github.com/scramjs/express-web-components)
+
+## Usage
+```
+bower install
+npm install
+npm run dev // development without a debug browser window
+npm run-dev-window // development with a debug browser window (recommended)
+```
+
+# The instructions below are for the original repository
+
 #The Dead-Simple Step-by-Step Guide for Front-End Developers to Getting Up and Running with Node.JS, Express, Jade, and MongoDB
 
 A tutorial and complete sample project for Front-End developers showing how to get Node, Express and Jade up and running, connected to MongoDB, and reading from / writing to the database.
