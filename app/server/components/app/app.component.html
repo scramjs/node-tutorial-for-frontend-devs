@@ -1,0 +1,76 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/express-web-components/express-app.html">
+<link rel="import" href="../../../../bower_components/express-web-components/express-config.html">
+<link rel="import" href="../../../../bower_components/express-web-components/express-middleware.html">
+<link rel="import" href="../pages/pages.component.html">
+<link rel="import" href="../api/api.component.html">
+<link rel="import" href="../error/error.component.html">
+
+<dom-module id="server-app">
+    <template>
+        <express-app port="[[port]]" callback="[[listenCallback]]">
+            <express-config callback="[[viewConfig]]"></express-config>
+
+            <express-middleware callback="[[loggerMW]]"></express-middleware>
+            <express-middleware callback="[[bodyParserJsonMW]]"></express-middleware>
+            <express-middleware callback="[[bodyParserUrlMW]]"></express-middleware>
+            <express-middleware callback="[[cookieParserMW]]"></express-middleware>
+
+            <express-config callback="[[staticConfig]]"></express-config>
+
+            <express-middleware callback="[[dbMW]]"></express-middleware>
+            <express-middleware callback="[[notFound]]"></express-middleware>
+
+            <server-pages></server-pages>
+            <server-api></server-api>
+
+            <server-error></server-error>
+        </express-app>
+    </template>
+
+    <script>
+        const pathModule = require('path');
+        const logger = require('morgan');
+        const cookieParser = require('cookie-parser');
+        const bodyParser = require('body-parser');
+        const mongo = require('mongodb');
+        const monk = require('monk');
+        const db = monk('localhost:27017/nodetest1');
+
+        class AppComponent {
+            beforeRegister() {
+                this.is = 'server-app';
+            }
+
+            ready() {
+                this.port = process.env.PORT || 3000;
+
+                this.listenCallback = () => {
+                    console.log('Express server listening on port ' + this.port);
+                    debug('Express server listening on port ' + this.port);
+                };
+
+                this.viewConfig = (app) => {
+                    app.set('views', pathModule.resolve(__dirname, 'views'));
+                    app.set('view engine', 'pug');
+                };
+
+                this.loggerMW = logger('dev');
+                this.bodyParserJsonMW = bodyParser.json();
+                this.bodyParserUrlMW = bodyParser.urlencoded({ extended: false });
+                this.cookieParserMW = cookieParser();
+
+                this.staticConfig = (app, express) => {
+                    app.use(express.static(pathModule.resolve(__dirname, '../client')));
+                };
+
+                this.dbMW = (req, res, next) => {
+                    req.db = db;
+                    next();
+                };
+            }
+        }
+
+        Polymer(AppComponent);
+    </script>
+</dom-module>
