@@ -1,0 +1,78 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../node_modules/express-web-components/express-app.html">
+<link rel="import" href="../../../../node_modules/express-web-components/express-config.html">
+<link rel="import" href="../../../../node_modules/express-web-components/express-middleware.html">
+<link rel="import" href="../../../../node_modules/express-web-components/express-router.html">
+<link rel="import" href="../server-pages/server-pages.html">
+<link rel="import" href="../server-users/server-users.html">
+<link rel="import" href="../server-error/server-error.html">
+
+<dom-module id="server-app">
+    <template>
+        <express-app port="[[port]]" callback="[[listenCallback]]">
+            <express-config callback="[[viewConfig]]"></express-config>
+
+            <express-middleware callback="[[loggerMW]]"></express-middleware>
+            <express-middleware callback="[[bodyParserJsonMW]]"></express-middleware>
+            <express-middleware callback="[[bodyParserUrlMW]]"></express-middleware>
+            <express-middleware callback="[[cookieParserMW]]"></express-middleware>
+
+            <express-config callback="[[staticConfig]]"></express-config>
+
+            <express-middleware callback="[[dbMW]]"></express-middleware>
+
+            <express-router path="/">
+                <server-pages></server-pages>
+                <server-users></server-users>
+            </express-router>
+
+            <server-error></server-error>
+        </express-app>
+    </template>
+
+    <script>
+        const debug = require('debug')('my-application');
+        const pathModule = require('path');
+        const logger = require('morgan');
+        const cookieParser = require('cookie-parser');
+        const bodyParser = require('body-parser');
+        const mongo = require('mongodb');
+        const monk = require('monk');
+        const db = monk('localhost:27017/nodetest1');
+
+        class ServerApp extends Polymer.Element {
+            static get is() { return 'server-app'; }
+
+            constructor() {
+                super();
+
+                this.port = process.env.PORT || 3000;
+                this.loggerMW = logger('dev');
+                this.bodyParserJsonMW = bodyParser.json();
+                this.bodyParserUrlMW = bodyParser.urlencoded({ extended: false });
+                this.cookieParserMW = cookieParser();
+            }
+
+            listenCallback() {
+                console.log('Express server listening on port ' + this.port);
+                debug('Express server listening on port ' + this.port);
+            }
+
+            viewConfig(app) {
+                app.set('views', pathModule.resolve(__dirname, 'views'));
+                app.set('view engine', 'pug');
+            }
+
+            staticConfig(app, express) {
+                app.use(express.static(pathModule.resolve(__dirname, '../client')));
+            }
+
+            dbMW(req, res, next) {
+                req.db = db;
+                next();
+            }
+        }
+
+        window.customElements.define(ServerApp.is, ServerApp);
+    </script>
+</dom-module>

@@ -1,8 +1,11 @@
 {
   "name": "nodetest1",
+  "description": "",
+  "main": "",
   "authors": [
     "Jordan Last <jordan.michael.last@gmail.com>"
   ],
+  "license": "MIT",
   "homepage": "https://github.com/scramjs/node-tutorial-for-frontend-devs",
   "ignore": [
     "**/.*",
@@ -12,7 +15,6 @@
     "tests"
   ],
   "dependencies": {
-    "polymer": "^1.6.0",
-    "express-web-components": "^0.5.4"
+    "polymer": "^2.0.1"
   }
 }

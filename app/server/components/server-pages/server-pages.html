@@ -1,0 +1,45 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../node_modules/express-web-components/express-middleware.html">
+
+<dom-module id="server-pages">
+    <template>
+        <express-middleware method="get" path="/" callback="[[homePage]]"></express-middleware>
+        <express-middleware method="get" path="/helloworld" callback="[[helloWorldPage]]"></express-middleware>
+        <express-middleware method="get" path="/userlist" callback="[[userListPage]]"></express-middleware>
+        <express-middleware method="get" path="/newuser" callback="[[newUserPage]]"></express-middleware>
+    </template>
+
+    <script>
+        class ServerPages extends Polymer.Element {
+            static get is() { return 'server-pages'; }
+
+            /* GET home page. */
+            homePage(req, res) {
+                res.render('index', { title: 'Express' });
+            }
+
+            /* GET Hello World page. */
+            helloWorldPage(req, res) {
+                res.render('helloworld', { title: 'Hello, World!' })
+            }
+
+            /* GET Userlist page. */
+            userListPage(req, res) {
+                const db = req.db;
+                const collection = db.get('usercollection');
+                collection.find({}, {}, (e,docs) => {
+                    res.render('userlist', {
+                        "userlist" : docs
+                    });
+                });
+            }
+
+            /* GET New User page. */
+            newUserPage(req, res) {
+                res.render('newuser', { title: 'Add New User' });
+            }
+        }
+
+        window.customElements.define(ServerPages.is, ServerPages);
+    </script>
+</dom-module>
